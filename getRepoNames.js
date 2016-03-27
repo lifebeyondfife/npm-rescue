@@ -3,15 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const git = require('nodegit');
 
-const npmPackages = [
-    '/home/iain/dev/flux-todomvc/package.json',
-    '/home/iain/dev/npm-rescue/package.json',
-    '/home/iain/dev/todo-redux-react-webpack/package.json',
-    '/home/iain/dev/react-tutorial/package.json',
-    '/home/iain/dev/flux/package.json'
-];
-
-const npmPackageToGitRepo = function(npmPackage) {
+const npmPackageToGitDirectory = npmPackage => {
     try {
         const gitPath = path.join(path.dirname(npmPackage), '.git');
         const gitStat = fs.statSync(gitPath);
@@ -20,19 +12,41 @@ const npmPackageToGitRepo = function(npmPackage) {
             return '';
         }
 
-        return path.basename(path.join(gitPath, '..'));
+        return path.join(gitPath, '..');
     } catch (error) {
         return '';
     }
 };
 
-const npmRepoLookup = {};
+const npmProjects = function(npmPackages) {
+    return Promise.all(npmPackages.map(npmPackage => {
+        return new Promise((resolve, reject) => {
+            const gitDirectory = npmPackageToGitDirectory(npmPackage);
 
-const gitRepos = npmPackages.forEach(function(npmPackage) {
-    npmRepoLookup[npmPackageToGitRepo(npmPackage)] = {
-        npmPackage,
-        gitRepo: path.join(path.dirname(npmPackage), '.git')
-    };
-});
+            git.Repository.open(gitDirectory).then(repo => {
+                return repo;
+            }).then(repo => {
+                git.Remote.lookup(repo, 'origin', null).then(remote => {
+                    resolve({
+                        remoteUrl: path.basename(remote.url()),
+                        npmPackage,
+                        gitRepo: path.dirname(npmPackage)
+                    });
+                });
+            });
+        });
+    })).then(npmGitCollection => {
+        const npmProjectsLookup = {};
 
-console.log(npmRepoLookup);
+        npmGitCollection.forEach(npmGit => {
+            npmProjectsLookup[npmGit.remoteUrl] = {
+                npmPackage: npmGit.npmPackage,
+                gitRepo: npmGit.gitRepo
+            }
+        });
+
+        return npmProjectsLookup;
+    });
+};
+
+module.exports = npmProjects;
