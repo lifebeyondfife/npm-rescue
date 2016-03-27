@@ -32,6 +32,19 @@ var directoryPromise = new Promise(function(resolve, reject) {
 
 const npmPackages = directoryPromise.then(function(directory) {
     findNpmPackages(directory).then(function(result) {
-        console.log(...result);
+        if (!result.length) {
+            console.log(`Cannot find any git projects with top level npm packages in ${directory}`)
+        } else {
+            console.log(`Found ${result.length} npm package(s)`)
+        }
     });
 });
+
+// create JSON object that stores projects to backup -
+/*{
+    gitArchive: '/home/iain/gitArchive',
+    npmPackages: {
+        gitProjectA: '/home/iain/blahblahblah/package.json'
+    }
+}
+*/
