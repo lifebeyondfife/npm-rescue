@@ -53,7 +53,7 @@ const searchDirectory = directory => {
         });
 
         npmPackagesSearch.on('complete', () => {
-            return resolve(npmPackages);
+            resolve(npmPackages);
         });
 
         npmPackagesSearch.startSearch();
