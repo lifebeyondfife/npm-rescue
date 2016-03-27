@@ -4,7 +4,7 @@ const path = require('path');
 const find = require('node-find-files');
 const nodegit = require('nodegit');
 
-const npmPackageFilter = function(pathName, stats) {
+const npmPackageFilter = (pathName, stats) => {
     if (!pathName.endsWith('package.json') || pathName.includes('node_modules')) {
         return false;
     }
@@ -23,9 +23,9 @@ const npmPackageFilter = function(pathName, stats) {
     }
 };
 
-const verifyDirectory = function(directory) {
-    return new Promise(function(resolve, reject) {
-        fs.stat(directory, function(error, stats) {
+const verifyDirectory = directory => {
+    return new Promise((resolve, reject) => {
+        fs.stat(directory, (error, stats) => {
             if (error) {
                 return reject(Error(error));
             }
@@ -39,8 +39,8 @@ const verifyDirectory = function(directory) {
     });
 };
 
-const searchDirectory = function(directory) {
-    return new Promise(function(resolve, reject) {
+const searchDirectory = directory => {
+    return new Promise((resolve, reject) => {
         const npmPackagesSearch = new find({
             rootFolder: directory,
             filterFunction: npmPackageFilter
@@ -48,11 +48,11 @@ const searchDirectory = function(directory) {
 
         const npmPackages = [];
 
-        npmPackagesSearch.on('match', function(strPath, stat) {
+        npmPackagesSearch.on('match', (strPath, stat) => {
             npmPackages.push(strPath);
         });
 
-        npmPackagesSearch.on('complete', function() {
+        npmPackagesSearch.on('complete', () => {
             return resolve(npmPackages);
         });
 
@@ -60,8 +60,8 @@ const searchDirectory = function(directory) {
     });
 }
 
-const findNpmPackages = function (directory) {
-    return verifyDirectory(directory).then(function() {
+const findNpmPackages = directory => {
+    return verifyDirectory(directory).then(() => {
         console.log(`Searching ${directory}...`);
 
         return directory;
