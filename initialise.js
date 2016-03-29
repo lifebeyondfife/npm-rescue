@@ -1,4 +1,6 @@
 'use strict';
+const fs = require('fs');
+const path = require('path');
 const findNpmPackages = require('./findNpmPackages');
 const getRepoNames = require('./getRepoNames');
 const userPrompt = require('./userPrompt');
@@ -8,33 +10,34 @@ const initialise = userPrompt().then(directories => {
     const searchPath = directories[0];
     const gitInitPath = directories[1];
 
-    findNpmPackages(searchPath).then(packages => {
-        if (!packages.length) {
-            console.log(`Cannot find any git projects with top level npm packages in ${directory}`)
-        } else {
-            console.log(`Found ${packages.length} npm package(s)`)
-        }
+    Promise.all([findNpmPackages(searchPath).then(packages => {
+            if (!packages.length) {
+                console.log(`Cannot find any git projects with top level npm packages in ${directory}`)
+            } else {
+                console.log(`Found ${packages.length} npm package(s)`)
+            }
 
-        return getRepoNames(packages);
-    }).then(npmGitPackages => {
-        console.log(npmGitPackages);
-    }).then(() => {
-        return createRepo(gitInitPath);
-    }).then(gitDirectory => {
-        console.log('Got the ' + gitDirectory);
+            return getRepoNames(packages);
+        }),
+        createRepo(gitInitPath)
+    ]).then(values => {
+        const config = JSON.stringify(
+            Object.assign({
+                npmPackages: values[0]
+            }, {
+                gitDirectory: path.resolve(values[1])
+            }),
+            null, 4
+        );
+
+        fs.writeFile('./npm-rescue-config.json', config, error => {
+            if (error) {
+                console.log('Error creating npm-rescue-config.json');
+                process.exit(1);
+            }
+
+            console.log('Created config file in npm-rescue-config.json...');
+            console.log(config);
+        });
     });
 });
-
-
-
-//amalgamate npm-rescue.json file
-
-
-// create JSON object that stores projects to backup -
-/*{
-    gitArchive: '/home/iain/gitArchive',
-    npmPackages: {
-        gitProjectA: '/home/iain/blahblahblah/package.json'
-    }
-}
-*/
