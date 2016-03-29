@@ -28,25 +28,14 @@ const npmProjects = function(npmPackages) {
             }).then(repo => {
                 git.Remote.lookup(repo, 'origin', null).then(remote => {
                     resolve({
-                        remoteUrl: path.basename(remote.url()),
+                        projectName: path.basename(remote.url()),
                         npmPackage,
                         gitRepo: path.dirname(npmPackage)
                     });
                 });
             });
         });
-    })).then(npmGitCollection => {
-        const npmProjectsLookup = {};
-
-        npmGitCollection.forEach(npmGit => {
-            npmProjectsLookup[npmGit.remoteUrl] = {
-                npmPackage: npmGit.npmPackage,
-                gitRepo: npmGit.gitRepo
-            }
-        });
-
-        return npmProjectsLookup;
-    });
+    }));
 };
 
 module.exports = npmProjects;
