@@ -1,10 +1,10 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const findNpmPackages = require('./findNpmPackages');
-const getRepoNames = require('./getRepoNames');
-const userPrompt = require('./userPrompt');
-const createRepo = require('./createRepo');
+const findNpmPackages = require('./src/findNpmPackages');
+const getRepoNames = require('./src/getRepoNames');
+const userPrompt = require('./src/userPrompt');
+const createRepo = require('./src/createRepo');
 
 const initialise = userPrompt().then(directories => {
     const searchPath = directories[0];
