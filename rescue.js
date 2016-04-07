@@ -8,23 +8,26 @@
  *  4.3.    exec("npm install")
     4.4.    git add .
     4.5.    git commit -m "Npm Rescue Backup at <XYZ> o'clock"
-*/
+ */
 'use strict';
 const fs = require('fs');
+const git = require('nodegit');
 const loadConfig = require('./src/loadConfig');
 
-loadConfig.then(parsedJson => {
-    //  When nodejs supports ES6 assignments natively
-    //const { gitDirectory, npmPackages } = parsedJson;
+const gitRepo = loadConfig.then(config => {
+    return git.Repository.open(config.gitDirectory).then(repository => {
+        return repository;
+    }).catch(error => {
+        console.log(error.message);
+        process.exit(1);
+    });
+});
 
-    const gitDirectory = parsedJson.gitDirectory;
-    const npmPackages = parsedJson.npmPackages;
-
-    console.log(gitDirectory);
-    console.log(npmPackages);
-}).catch(error => {
-    console.log(error.message);
-})
+gitRepo.then(repo => {
+    repo.getReferenceNames(git.Reference.TYPE.OID).then(function(arrayString) {
+        console.log(arrayString);
+    });
+});
 
 /*  4.3
 const spawn = require('child_process').spawn;
