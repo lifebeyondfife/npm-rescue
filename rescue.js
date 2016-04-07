@@ -10,22 +10,44 @@
     4.5.    git commit -m "Npm Rescue Backup at <XYZ> o'clock"
  */
 'use strict';
-const fs = require('fs');
+const fs = require('fs-extra');
 const git = require('nodegit');
+const path = require('path');
 const loadConfig = require('./src/loadConfig');
 
-const gitRepo = loadConfig.then(config => {
+const repoConfig = loadConfig.then(config => {
     return git.Repository.open(config.gitDirectory).then(repository => {
-        return repository;
+        return {repo: repository, config};
     }).catch(error => {
         console.log(error.message);
         process.exit(1);
-    });
-});
+    }).then(repoConfig => {
+        const repo = repoConfig.repo;
+        const config = repoConfig.config;
 
-gitRepo.then(repo => {
-    repo.getReferenceNames(git.Reference.TYPE.OID).then(function(arrayString) {
-        console.log(arrayString);
+        config.npmPackages.forEach(npmPackage => {
+            const packageJson = path.resolve(config.gitDirectory, 'package.json');
+
+            fs.copySync(npmPackage.npmPackage, packageJson);
+
+            const signature = git.Signature.now(process.env['USER'], 'npm@rescue.com');
+
+            console.log('Sig: ' + signature);
+
+            repo.createCommitOnHead([packageJson], signature, signature, 'Initial commit').then(oid => {
+                repo.createBranch(npmPackage.projectName, oid, false, signature, 'Log message').then(reference => {
+                    console.log(`Created branch ${npmPackage.projectName}...`);
+                }).catch(error => {
+                    console.log(error);
+                });
+            }).catch(error => {
+                console.log(error);
+            });
+        });
+
+        repo.getReferenceNames(git.Reference.TYPE.OID).then(function(arrayString) {
+            console.log(arrayString);
+        });
     });
 });
 
