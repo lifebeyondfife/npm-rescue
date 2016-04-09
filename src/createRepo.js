@@ -20,11 +20,11 @@ const gitDirectory = directory => {
 };
 
 const createRepo = (gitInitPath) => {
-    return gitDirectory(gitInitPath).then(path => {
-        return git.Repository.init(path, 0).then(repository => {
+    return gitDirectory(gitInitPath).then(gitDirectory => {
+        return git.Repository.init(gitDirectory, 0).then(repo => {
             console.log('Initialised git repository');
 
-            return path;
+            return {gitDirectory, repo};
         });
     }).catch(error => {
         console.log(error.message);

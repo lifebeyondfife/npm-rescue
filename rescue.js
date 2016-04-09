@@ -15,6 +15,15 @@ const git = require('nodegit');
 const path = require('path');
 const loadConfig = require('./src/loadConfig');
 
+
+/* Bit of a mess here now. The nodegit API doesn't allow you to do steps as easily as using git CLI.
+
+- when creating the git repo, make an initial commit.
+-   This is the OID that all other branches will come from.
+- ask for a name and email
+put oid, name, email in the config too
+*/
+
 const repoConfig = loadConfig.then(config => {
     return git.Repository.open(config.gitDirectory).then(repository => {
         return {repo: repository, config};

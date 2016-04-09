@@ -5,10 +5,13 @@ const findNpmPackages = require('./src/findNpmPackages');
 const getRepoNames = require('./src/getRepoNames');
 const userPrompt = require('./src/userPrompt');
 const createRepo = require('./src/createRepo');
+const headCommit = require('./src/headCommit');
 
-const initialise = userPrompt().then(directories => {
-    const searchPath = directories[0];
-    const gitInitPath = directories[1];
+const initialise = userPrompt().then(userProperties => {
+    const searchPath = userProperties[0];
+    const gitInitPath = userProperties[1];
+    const gitUsername = userProperties[2];
+    const gitEmailAddress = userProperties[3];
 
     Promise.all([findNpmPackages(searchPath).then(packages => {
             if (!packages.length) {
@@ -19,14 +22,20 @@ const initialise = userPrompt().then(directories => {
 
             return getRepoNames(packages);
         }),
-        createRepo(gitInitPath)
+        createRepo(gitInitPath).then(git => {
+            return headCommit(git.repo, git.gitDirectory, gitUsername, gitEmailAddress);
+        })
     ]).then(values => {
-        const config = JSON.stringify(
-            Object.assign({
-                npmPackages: values[0]
-            }, {
-                gitDirectory: path.resolve(values[1])
-            }),
+        console.log('Val-you: ' + JSON.stringify(values[1]));
+        const config = JSON.stringify({
+                npmPackages: values[0],
+                gitDirectory: path.resolve(values[1].gitDirectory),
+                headCommitOid: values[1].headCommitOid,
+                gitSignature: {
+                    user: gitUsername,
+                    email: gitEmailAddress
+                }
+            },
             null, 4
         );
 
