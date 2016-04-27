@@ -10,8 +10,6 @@ const headCommit = require('./src/headCommit');
 const initialise = userPrompt().then(userProperties => {
     const searchPath = userProperties[0];
     const gitInitPath = userProperties[1];
-    const gitUsername = userProperties[2];
-    const gitEmailAddress = userProperties[3];
 
     Promise.all([findNpmPackages(searchPath).then(packages => {
             if (!packages.length) {
@@ -23,17 +21,13 @@ const initialise = userPrompt().then(userProperties => {
             return getRepoNames(packages);
         }),
         createRepo(gitInitPath).then(git => {
-            return headCommit(git.repo, git.gitDirectory, gitUsername, gitEmailAddress);
+            return headCommit(git.repo, git.gitDirectory);
         })
     ]).then(values => {
         const config = JSON.stringify({
                 npmPackages: values[0],
                 gitDirectory: path.resolve(values[1].gitDirectory),
-                headCommitOid: values[1].headCommitOid,
-                gitSignature: {
-                    user: gitUsername,
-                    email: gitEmailAddress
-                }
+                headCommitOid: values[1].headCommitOid
             },
             null, 4
         );
