@@ -20,7 +20,11 @@ const loadConfig = require('./src/loadConfig');
 
 - create the branches in the intialise script
 - make an initial commit in there as well (need the branch.target() to be a commit in its own branch)
-- remove signature in intialisation, use repo.defaultSignature
+- line below is how you stage the entire subdirectory, given an Index object
+    //return index.addAll(git.Pathspec.create(['.']), git.Index.ADD_OPTION.ADD_DEFAULT, null);
+
+
+
 */
 
 const repoConfig = loadConfig.then(config => {
