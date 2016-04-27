@@ -29,8 +29,7 @@ const npmProjects = function(npmPackages) {
                 git.Remote.lookup(repo, 'origin', null).then(remote => {
                     resolve({
                         projectName: path.basename(remote.url()),
-                        npmPackage,
-                        gitRepo: path.dirname(npmPackage)
+                        npmPackage
                     });
                 });
             });

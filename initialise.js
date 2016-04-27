@@ -26,7 +26,6 @@ const initialise = userPrompt().then(userProperties => {
             return headCommit(git.repo, git.gitDirectory, gitUsername, gitEmailAddress);
         })
     ]).then(values => {
-        console.log('Val-you: ' + JSON.stringify(values[1]));
         const config = JSON.stringify({
                 npmPackages: values[0],
                 gitDirectory: path.resolve(values[1].gitDirectory),
@@ -46,7 +45,6 @@ const initialise = userPrompt().then(userProperties => {
             }
 
             console.log('Created config file in npm-rescue-config.json...');
-            console.log(config);
         });
     });
 });
