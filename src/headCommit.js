@@ -10,13 +10,10 @@ const headCommit = (repo, gitDirectory) => {
         fs.copySync(path.resolve('./docs', 'README.md'), readme);
 
         const signature = repo.defaultSignature();
-        let gitConfig = undefined;
         let index = undefined;
+        let headCommitOid = undefined;
 
-        repo.createCommitOnHead([], signature, signature, 'Initial npm-rescue commit.').then(oid => {
-            gitConfig = {headCommitOid: oid.tostrS(), gitDirectory};
-            return repo.index();
-        }).then(i => {
+        repo.index().then(i => {
             index = i;
             //return index.addAll(git.Pathspec.create(['.']), git.Index.ADD_OPTION.ADD_DEFAULT);
             return index.addByPath('README.md');
@@ -24,19 +21,11 @@ const headCommit = (repo, gitDirectory) => {
             index.write();
             return index.writeTree();
         }).then(oid => {
-            //  get the necessary parameters for a call to
-            //      git.Reference.nameToId(repo, 'HEAD').then(head => { return repo.getCommit(head) })
-            //          .then(parent => {});
-            //      repo.createCommit('HEAD', signature, signature, 'Commit message', oid, [parent]);
-
-            //  Can call repo.index() *FIRST*, then do the createCommit.
-
-        })
-
-
-
-        .then(() => {
-            return resolve(gitConfig);
+            headCommitOid = oid;
+        }).then(() => {
+            return repo.createCommit('HEAD', signature, signature, 'Initial npm-rescue commit.', headCommitOid);
+        }).then(oid => {
+            return resolve({headCommitOid: oid.tostrS(), gitDirectory});
         }).catch(error => {
             return reject(error);
         });
