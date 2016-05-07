@@ -6,10 +6,16 @@ const getRepoNames = require('./src/getRepoNames');
 const userPrompt = require('./src/userPrompt');
 const createRepo = require('./src/createRepo');
 const headCommit = require('./src/headCommit');
+const createBranches = require('./src/createBranches');
 
 const initialise = userPrompt().then(userProperties => {
     const searchPath = userProperties[0];
     const gitInitPath = userProperties[1];
+
+    let gitDirectory = undefined;
+    let npmPackages = undefined;
+    let repo = undefined;
+    let branchOid = undefined;
 
     Promise.all([findNpmPackages(searchPath).then(packages => {
             if (!packages.length) {
@@ -21,13 +27,19 @@ const initialise = userPrompt().then(userProperties => {
             return getRepoNames(packages);
         }),
         createRepo(gitInitPath).then(git => {
+            gitDirectory = git.gitDirectory;
             return headCommit(git.repo, git.gitDirectory);
         })
     ]).then(values => {
+        npmPackages = values[0];
+        repo = values[1].repo;
+        branchOid = values[1].oid;
+
+        return createBranches(npmPackages, repo, branchOid);
+    }).then(() => {
         const config = JSON.stringify({
-                npmPackages: values[0],
-                gitDirectory: path.resolve(values[1].gitDirectory),
-                headCommitOid: values[1].headCommitOid
+                npmPackages: npmPackages,
+                gitDirectory: path.resolve(gitDirectory),
             },
             null, 4
         );

@@ -25,7 +25,7 @@ const headCommit = (repo, gitDirectory) => {
         }).then(() => {
             return repo.createCommit('HEAD', signature, signature, 'Initial npm-rescue commit.', headCommitOid);
         }).then(oid => {
-            return resolve({headCommitOid: oid.tostrS(), gitDirectory});
+            return resolve({repo, oid});
         }).catch(error => {
             return reject(error);
         });
