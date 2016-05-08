@@ -1,7 +1,7 @@
 'use strict';
 const prompt = require('prompt');
 
-let homeDirectory = process.env[
+const homeDirectory = process.env[
     (process.platform == 'win32') ? 'USERPROFILE' : 'HOME'
 ];
 

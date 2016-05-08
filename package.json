@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/lifebeyondfife/npm-rescue#readme",
   "dependencies": {
+    "fs-extra": "^0.26.7",
     "node-find-files": "0.0.4",
     "node-watch": "^0.3.5",
     "nodegit": "^0.11.9",

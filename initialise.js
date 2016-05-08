@@ -5,10 +5,17 @@ const findNpmPackages = require('./src/findNpmPackages');
 const getRepoNames = require('./src/getRepoNames');
 const userPrompt = require('./src/userPrompt');
 const createRepo = require('./src/createRepo');
+const headCommit = require('./src/headCommit');
+const createBranches = require('./src/createBranches');
 
-const initialise = userPrompt().then(directories => {
-    const searchPath = directories[0];
-    const gitInitPath = directories[1];
+const initialise = userPrompt().then(userProperties => {
+    const searchPath = userProperties[0];
+    const gitInitPath = userProperties[1];
+
+    let gitDirectory = undefined;
+    let npmPackages = undefined;
+    let repo = undefined;
+    let branchOid = undefined;
 
     Promise.all([findNpmPackages(searchPath).then(packages => {
             if (!packages.length) {
@@ -19,14 +26,20 @@ const initialise = userPrompt().then(directories => {
 
             return getRepoNames(packages);
         }),
-        createRepo(gitInitPath)
+        createRepo(gitInitPath).then(git => {
+            gitDirectory = git.gitDirectory;
+            return headCommit(git.repo, git.gitDirectory);
+        })
     ]).then(values => {
-        const config = JSON.stringify(
-            Object.assign({
-                npmPackages: values[0]
-            }, {
-                gitDirectory: path.resolve(values[1])
-            }),
+        npmPackages = values[0];
+        repo = values[1];
+
+        return createBranches(npmPackages, repo);
+    }).then(() => {
+        const config = JSON.stringify({
+                npmPackages: npmPackages,
+                gitDirectory: path.resolve(gitDirectory),
+            },
             null, 4
         );
 
@@ -37,7 +50,8 @@ const initialise = userPrompt().then(directories => {
             }
 
             console.log('Created config file in npm-rescue-config.json...');
-            console.log(config);
         });
+    }).catch(error => {
+        console.log(error.message);
     });
 });

@@ -19,6 +19,9 @@ const loadConfig = new Promise((resolve, reject) => {
             return reject(error);
         }
     });
+}).catch(error => {
+    console.log(error.message);
+    process.exit(1);
 });
 
 module.exports = loadConfig;
