@@ -32,10 +32,9 @@ const initialise = userPrompt().then(userProperties => {
         })
     ]).then(values => {
         npmPackages = values[0];
-        repo = values[1].repo;
-        branchOid = values[1].oid;
+        repo = values[1];
 
-        return createBranches(npmPackages, repo, branchOid);
+        return createBranches(npmPackages, repo);
     }).then(() => {
         const config = JSON.stringify({
                 npmPackages: npmPackages,
@@ -52,5 +51,7 @@ const initialise = userPrompt().then(userProperties => {
 
             console.log('Created config file in npm-rescue-config.json...');
         });
+    }).catch(error => {
+        console.log(error.message);
     });
 });

@@ -6,25 +6,24 @@ const path = require('path');
 //  TODO: work out how to do this using the yield keyword in strict mode
 const createBranchPromises = (npmPackages, repo, commit) => {
     const promises = [];
+
     npmPackages.map(npmPackage => {
-        promise.push(git.Branch.create(repo, npmPackage.projectName, commit));
+        promises.push(git.Branch.create(repo, npmPackage.projectName, commit, 0, ref => {
+            console.log(`Created '${npmPackage.projectName}' branch.`);
+        }));
     });
-    console.log('failing (not getting) here');
+
     return promises;
 };
 
-const createBranches = (npmPackages, repo, branchOid) => {
+const createBranches = (npmPackages, repo) => {
     return new Promise((resolve, reject) => {
         let commit = undefined;
 
-        //  this value of branchOid isn't correct except for the first call of initialise.js
-        console.log(branchOid.toString());
-        git.Commit.lookup(repo, branchOid).then(c => {
+        repo.getHeadCommit().then(c => {
             commit = c;
         }).then(() => {
-            return Promise.all(createBranchPromises(npmPackages, repo, commit));
-        }).then(() => {
-            resolve();
+            Promise.all(createBranchPromises(npmPackages, repo, commit)).then(resolve());
         }).catch(error => {
             console.log('Error while trying to create branches for npm projects.');
             reject(error.message);
