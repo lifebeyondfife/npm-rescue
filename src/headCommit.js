@@ -11,7 +11,6 @@ const headCommit = (repo, gitDirectory) => {
 
         const signature = repo.defaultSignature();
         let index = undefined;
-        let headCommitOid = undefined;
 
         repo.index().then(i => {
             index = i;
@@ -21,10 +20,8 @@ const headCommit = (repo, gitDirectory) => {
             index.write();
             return index.writeTree();
         }).then(oid => {
-            headCommitOid = oid;
+            return repo.createCommit('HEAD', signature, signature, 'Initial npm-rescue commit.', oid);
         }).then(() => {
-            return repo.createCommit('HEAD', signature, signature, 'Initial npm-rescue commit.', headCommitOid);
-        }).then(oid => {
             return resolve(repo);
         }).catch(error => {
             return reject(error);
