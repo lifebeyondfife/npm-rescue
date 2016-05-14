@@ -44,6 +44,9 @@ const repoConfig = loadConfig.then(config => {
                 return git.Branch.lookup(repo, npmPackage.projectName, git.Branch.BRANCH.LOCAL);
             }).then(branch => {
                 //  this doesn't do anything
+                //  even if you add:
+                //      return branch.target().then(oid => {
+                //  and call Checkout.tree(repo, oid) instead
                 return git.Checkout.tree(repo, branch);
             }).then(tree => {
                 parent = tree.id();
