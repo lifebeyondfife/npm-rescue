@@ -40,7 +40,7 @@ function gitBranch(repo, npmRescuePackage, npmPackage) {
         console.log(`02 - ${npmPackage.npmPackage}`);
         fs.copySync(npmPackage.npmPackage, npmRescuePackage);
         console.log(`03 - ${npmPackage.npmPackage}`);
-//        console.log(`Wrote ${npmPackage.npmPackage} to ${npmRescuePackage}.`);
+        //console.log(`Wrote ${npmPackage.npmPackage} to ${npmRescuePackage}.`);
         return repo.index();
     }).then(i => {
         console.log(`04 - ${npmPackage.npmPackage}`);
@@ -75,39 +75,7 @@ const repoConfig = loadConfig.then(config => {
         const config = repoConfig.config;
         const signature = repo.defaultSignature();
         const npmRescuePackage = path.resolve(config.gitDirectory, 'package.json');
-/*
 
-Aha, there is asynchronous weirdness going on that needs to be fixed.
-
-Try something like:
-
-    var idx = npmPackages.getIndices();
-
-    function updatePackages(index) {
-        do all the async stuff
-    }
-
-    for (var i in idx) {
-        updatePackages(i).done(() => { console.log('Better?'); });
-    }
-
-Wrote /home/iain/dev/flux/package.json to /home/iain/dev/npm-rescue/npm-rescue-backup/package.json.
-Wrote /home/iain/dev/flux-todomvc/package.json to /home/iain/dev/npm-rescue/npm-rescue-backup/package.json.
-Wrote /home/iain/dev/npm-rescue/package.json to /home/iain/dev/npm-rescue/npm-rescue-backup/package.json.
-Wrote /home/iain/dev/todo-redux-react-webpack/package.json to /home/iain/dev/npm-rescue/npm-rescue-backup/package.json.
-Wrote /home/iain/dev/react-tutorial/package.json to /home/iain/dev/npm-rescue/npm-rescue-backup/package.json.
-New commit for flux.git: 0000000000000000605d39030000000020000000.
-Checkpoint
-New commit for flux-todomvc.git: 709839030000000040e733030000000000000000.
-Checkpoint
-New commit for npm-rescue.git: 50ca39030000000020e433030000000000000000.
-Checkpoint
-New commit for todo-redux-react-webpack.git: 205b390300000000e0f739030000000000000000.
-Checkpoint
-New commit for react-tutorial.git: a0f539030000000080e833030000000000000000.
-Checkpoint
-
-*/
         var processPromise = npmPackages => {
             var npmPackage = npmPackages.pop();
 
