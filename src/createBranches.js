@@ -8,8 +8,8 @@ const createBranchPromises = (npmPackages, repo, commit) => {
     const promises = [];
 
     npmPackages.map(npmPackage => {
-        promises.push(git.Branch.create(repo, npmPackage.projectName, commit, 0, ref => {
-            console.log(`Created '${npmPackage.projectName}' branch.`);
+        promises.push(git.Branch.create(repo, npmPackage.projectName, commit, 0).then(ref => {
+            console.log(`Created '${npmPackage.projectName}'.`);
         }));
     });
 
