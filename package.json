@@ -26,6 +26,6 @@
     "node-watch": "^0.3.5",
     "nodegit": "^0.11.9",
     "prompt": "^1.0.0",
-    "sleep": "^3.0.1"
+    "simple-git": "^1.35.0"
   }
 }
