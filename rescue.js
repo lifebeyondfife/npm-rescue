@@ -23,12 +23,13 @@ const repoConfig = loadConfig.then(config => {
 
         return new Promise((resolve, reject) => {
             repo.checkout(npmPackage.projectName).then(() => {
+                const workingDirectory = path.dirname(npmPackage.npmPackage);
                 fs.copySync(npmPackage.npmPackage, npmRescuePackage);
 
-                const npmInstall = spawn('npm', ['install'], { cwd: path.dirname(npmPackage.npmPackage) });
+                process.chdir(workingDirectory);
+                const npmInstall = spawn('npm', ['install'], { cwd: workingDirectory });
                 npmInstall.stdout.on('data', printLine);
                 npmInstall.stderr.on('data', printLine);
-
                 npmInstall.on('close', code => {
                     console.log(`child process exited with code ${code}`);
 
