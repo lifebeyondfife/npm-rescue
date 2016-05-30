@@ -2,7 +2,6 @@
 const fs = require('fs-extra');
 const git = require('simple-git');
 const path = require('path');
-const spawn = require('child_process').spawn;
 const moment = require('moment');
 const loadConfig = require('./src/loadConfig');
 
@@ -22,15 +21,23 @@ const repoConfig = loadConfig.then(config => {
         }
 
         return new Promise((resolve, reject) => {
+            console.log(`Backing up ${npmPackage.projectName}...`);
+
             repo.checkout(npmPackage.projectName).then(() => {
+                const workingDirectory = path.dirname(npmPackage.npmPackage);
                 fs.copySync(npmPackage.npmPackage, npmRescuePackage);
 
-                const npmInstall = spawn('npm', ['install'], { cwd: path.dirname(npmPackage.npmPackage) });
-                npmInstall.stdout.on('data', printLine);
-                npmInstall.stderr.on('data', printLine);
+                process.chdir(config.gitDirectory);
+                const npmInstall = require('child_process').spawn('npm', ['install'], { cwd: config.gitDirectory });
+
+                //  Uncomment for detailed console output
+                //  npmInstall.stdout.on('data', printLine);
+                //  npmInstall.stderr.on('data', printLine);
 
                 npmInstall.on('close', code => {
-                    console.log(`child process exited with code ${code}`);
+                    if (code === 1) {
+                        console.log(`\nERROR with ${npmPackage.projectName}!\n`);
+                    }
 
                     return resolve(repo.
                         add('./*').
@@ -39,16 +46,13 @@ const repoConfig = loadConfig.then(config => {
                 });
             });
         }).then(() => {
-            console.log(`Backing up ${npmPackage.projectName}...`);
             return backupPackages(npmPackages);
         });
     };
 
     //  Backup action is chained recursively with promises
     //  to keep the order deterministic while doing file I/O
-    backupPackages(config.npmPackages).then(() => {
-        console.log('Finished.');
-    });
+    backupPackages(config.npmPackages);
 }).catch(error => {
     console.log(error.message);
     process.exit(1);
