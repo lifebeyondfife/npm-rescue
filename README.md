@@ -1,5 +1,5 @@
 # npm-rescue
-Backup node_modules for all your npm based projects.
+Backup `node_modules` for all your npm based projects.
 
 ```
 $ npm install npm-rescue -g
