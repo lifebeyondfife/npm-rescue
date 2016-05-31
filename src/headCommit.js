@@ -14,7 +14,6 @@ const headCommit = (repo, gitDirectory) => {
 
         repo.index().then(i => {
             index = i;
-            //return index.addAll(git.Pathspec.create(['.']), git.Index.ADD_OPTION.ADD_DEFAULT);
             return index.addByPath('README.md');
         }).then(code => {
             index.write();
