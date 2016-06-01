@@ -1,31 +1,24 @@
 'use strict';
 const fs = require('fs-extra');
-const git = require('nodegit');
+const git = require('simple-git');
 const path = require('path');
 
-const headCommit = (repo, gitDirectory) => {
+const headCommit = gitDirectory => {
     return new Promise((resolve, reject) => {
         const readme = path.resolve(gitDirectory, 'README.md');
 
         fs.copySync(path.resolve('./docs', 'README.md'), readme);
 
-        const signature = repo.defaultSignature();
-        let index = undefined;
-
-        repo.index().then(i => {
-            index = i;
-            //return index.addAll(git.Pathspec.create(['.']), git.Index.ADD_OPTION.ADD_DEFAULT);
-            return index.addByPath('README.md');
-        }).then(code => {
-            index.write();
-            return index.writeTree();
-        }).then(oid => {
-            return repo.createCommit('HEAD', signature, signature, 'Initial npm-rescue commit.', oid);
-        }).then(() => {
-            return resolve(repo);
-        }).catch(error => {
+        try {
+            git(gitDirectory).
+                add('README.md').
+                commit('Initial npm-rescue commit.').
+                then(() => {
+                    resolve();
+                });
+        } catch(error) {
             return reject(error);
-        });
+        }
     });
 };
 

@@ -1,10 +1,10 @@
 'use strict';
-const git = require('nodegit');
+const git = require('simple-git');
 const path = require('path');
 const mkdirp = require('mkdirp');
 const userPrompt = require('./userPrompt');
 
-const gitDirectory = directory => {
+const getGitDirectory = directory => {
     return new Promise((resolve, reject) => {
         const npmRescueDirectory = path.join(directory, '/npm-rescue-backup');
 
@@ -19,12 +19,14 @@ const gitDirectory = directory => {
     });
 };
 
-const createRepo = (gitInitPath) => {
-    return gitDirectory(gitInitPath).then(gitDirectory => {
-        return git.Repository.init(gitDirectory, 0).then(repo => {
-            console.log('Initialised git repository');
+const createRepo = gitInitPath => {
+    return getGitDirectory(gitInitPath).then(gitDirectory => {
+        return new Promise((resolve, reject) => {
+            git(gitDirectory).init().then(() => {
+                console.log('Initialised git repository');
 
-            return {gitDirectory, repo};
+                resolve(gitDirectory);
+            });
         });
     }).catch(error => {
         console.log(error.message);
