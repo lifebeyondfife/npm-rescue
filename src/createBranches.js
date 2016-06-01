@@ -3,7 +3,6 @@ const fs = require('fs-extra');
 const git = require('simple-git');
 const path = require('path');
 
-//  TODO: work out how to do this using the yield keyword in strict mode
 const createBranchPromises = (npmPackages, gitDirectory) => {
     const promises = [];
 
