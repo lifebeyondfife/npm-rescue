@@ -2,7 +2,6 @@
 const fs = require('fs');
 const path = require('path');
 const find = require('node-find-files');
-const nodegit = require('nodegit');
 
 const npmPackageFilter = (pathName, stats) => {
     if (!pathName.endsWith('package.json') || pathName.includes('node_modules')) {

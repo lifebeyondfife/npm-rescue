@@ -25,7 +25,6 @@
     "moment": "^2.13.0",
     "node-find-files": "0.0.4",
     "node-watch": "^0.3.5",
-    "nodegit": "^0.11.9",
     "prompt": "^1.0.0",
     "simple-git": "^1.35.0"
   }

@@ -1,7 +1,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const git = require('nodegit');
+const git = require('simple-git');
 
 const npmPackageToGitDirectory = npmPackage => {
     try {
@@ -23,15 +23,15 @@ const npmProjects = function(npmPackages) {
         return new Promise((resolve, reject) => {
             const gitDirectory = npmPackageToGitDirectory(npmPackage);
 
-            git.Repository.open(gitDirectory).then(repo => {
-                return repo;
-            }).then(repo => {
-                git.Remote.lookup(repo, 'origin', null).then(remote => {
-                    resolve({
-                        projectName: path.basename(remote.url()),
-                        npmPackage
+            git(gitDirectory).getRemotes(true, (error, remotes) => {
+                remotes.
+                    filter(r => r.name == 'origin').
+                    map(r => {
+                        resolve({
+                            projectName: path.basename(r.refs.fetch),
+                            npmPackage
+                        });
                     });
-                });
             });
         });
     }));

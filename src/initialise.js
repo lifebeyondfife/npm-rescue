@@ -15,8 +15,6 @@ const initialise = npmRescueConfig => {
 
         let gitDirectory = undefined;
         let npmPackages = undefined;
-        let repo = undefined;
-        let branchOid = undefined;
 
         return Promise.all([findNpmPackages(searchPath).then(packages => {
                 if (!packages.length) {
@@ -27,15 +25,13 @@ const initialise = npmRescueConfig => {
 
                 return getRepoNames(packages);
             }),
-            createRepo(gitInitPath).then(git => {
-                gitDirectory = git.gitDirectory;
-                return headCommit(git.repo, git.gitDirectory);
+            createRepo(gitInitPath).then(_gitDirectory => {
+                gitDirectory = _gitDirectory;
+                return headCommit(gitDirectory);
             })
         ]).then(values => {
             npmPackages = values[0];
-            repo = values[1];
-
-            return createBranches(npmPackages, repo);
+            return createBranches(npmPackages, gitDirectory);
         }).then(() => {
             const config = JSON.stringify({
                     npmPackages: npmPackages,
