@@ -61,7 +61,7 @@ const searchDirectory = directory => {
 
 const findNpmPackages = directory => {
     return verifyDirectory(directory).then(() => {
-        console.log(`Searching ${directory}...`);
+        console.log(`Searching ${directory}. This could take several minutes...`);
 
         return directory;
     }, function(error) {
