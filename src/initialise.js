@@ -16,7 +16,11 @@ const initialise = npmRescueConfig => {
         let gitDirectory = undefined;
         let npmPackages = undefined;
 
-        return Promise.all([findNpmPackages(searchPath).then(packages => {
+        return createRepo(gitInitPath).then(_gitDirectory => {
+            gitDirectory = _gitDirectory;
+            return headCommit(gitDirectory);
+        }).then(() => {
+            return findNpmPackages(searchPath).then(packages => {
                 if (!packages.length) {
                     console.log(`Cannot find any git projects with top level npm packages in ${directory}`)
                 } else {
@@ -24,13 +28,9 @@ const initialise = npmRescueConfig => {
                 }
 
                 return getRepoNames(packages);
-            }),
-            createRepo(gitInitPath).then(_gitDirectory => {
-                gitDirectory = _gitDirectory;
-                return headCommit(gitDirectory);
-            })
-        ]).then(values => {
-            npmPackages = values[0];
+            });
+        }).then(_npmPackages => {
+            npmPackages = _npmPackages;
             return createBranches(npmPackages, gitDirectory);
         }).then(() => {
             const config = JSON.stringify({

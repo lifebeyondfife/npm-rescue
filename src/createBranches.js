@@ -3,26 +3,32 @@ const fs = require('fs-extra');
 const git = require('simple-git');
 const path = require('path');
 
-const createBranchPromises = (npmPackages, gitDirectory) => {
-    const promises = [];
+let gitDirectory = undefined;
 
-    npmPackages.map(npmPackage => {
-        promises.push(git(gitDirectory).checkoutBranch(npmPackage.projectName, 'master', () => {
-            console.log(`Created '${npmPackage.projectName}'.`);
-        }));
+const createBranchesRecursive = npmPackages => {
+    var npmPackage = npmPackages.pop();
+
+    if (npmPackage == undefined) {
+        return new Promise((resolve, reject) => { resolve(); });
+    }
+
+    return new Promise((resolve, reject) => {
+        git(gitDirectory).checkoutBranch(npmPackage.projectName, 'master', () => {
+            console.log(`Created branch for '${npmPackage.projectName}'.`);
+            resolve();
+        })
+    }).then(() => {
+        return createBranchesRecursive(npmPackages);
     });
-
-    return promises;
 };
 
-const createBranches = (npmPackages, gitDirectory) => {
-    return new Promise((resolve, reject) => {
-        Promise.all(createBranchPromises(npmPackages, gitDirectory)).then(() => {
-            resolve();
-        }).catch(error => {
-            console.log('Error creating branches for npm projects.');
-            reject(error.message);
-        })
+const createBranches = (npmPackages, _gitDirectory) => {
+    gitDirectory = _gitDirectory;
+
+    return createBranchesRecursive(npmPackages.slice(0)).catch(error => {
+        console.log('Error creating branches for npm projects.');
+        console.log(error.message);
+        process.exit(1);
     });
 };
 

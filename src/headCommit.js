@@ -6,8 +6,9 @@ const path = require('path');
 const headCommit = gitDirectory => {
     return new Promise((resolve, reject) => {
         const readme = path.resolve(gitDirectory, 'README.md');
+        const nodeReadme = path.resolve(__dirname, '..', 'docs', 'README.md');
 
-        fs.copySync(path.resolve('./docs', 'README.md'), readme);
+        fs.copySync(nodeReadme, readme);
 
         try {
             git(gitDirectory).
