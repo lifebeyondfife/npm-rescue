@@ -25,7 +25,6 @@ const repoConfig = npmRescueConfig => {
                 console.log(`Backing up ${npmPackage.projectName}...`);
 
                 repo.checkout(npmPackage.projectName).then(() => {
-                    const workingDirectory = path.dirname(npmPackage.npmPackage);
                     fs.copySync(npmPackage.npmPackage, npmRescuePackage);
 
                     process.chdir(config.gitDirectory);

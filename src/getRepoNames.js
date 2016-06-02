@@ -29,7 +29,7 @@ const npmProjects = function(npmPackages) {
                     map(r => {
                         resolve({
                             projectName: path.basename(r.refs.fetch),
-                            npmPackage
+                            npmPackage: path.resolve(npmPackage)
                         });
                     });
             });
