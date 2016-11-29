@@ -1,3 +1,6 @@
+# DEPRECATED
+I'm happy to report that this project is no longer needed, you can solve the problem of disappearing nodejs modules by swapping npm for [yarn](https://github.com/yarnpkg/yarn).
+
 # npm-rescue
 Backup `node_modules` for all your npm based projects.
 
